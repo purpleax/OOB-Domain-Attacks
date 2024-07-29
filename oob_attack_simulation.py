@@ -3,8 +3,8 @@ import subprocess
 import dns.resolver
 
 # Configuration
-DEMO_WEBSITE_URL = "http://your-demo-website.com"
-ATTACKER_SERVER_URL = "http://oobserver.net:5000"  # Ensure this is pointing to your attack server on port 5000
+DEMO_WEBSITE_URL = "http://oobserver.net"
+ATTACKER_SERVER_URL = "http://oastify.com"  # Ensure this is pointing to your attack server on port 5000
 
 def check_server():
     """Check if the attack server is reachable."""
