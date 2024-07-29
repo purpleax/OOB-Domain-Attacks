@@ -6,6 +6,7 @@ app = Flask(__name__)
 def catch_all(path):
     """Catch-all endpoint to log data from any path."""
     data = request.args.get('data') or request.form.get('data')
+    print(f"Request to /{path} with data: {data}")
     if data:
         print(f"Received data on /{path}: {data}")
     else:
